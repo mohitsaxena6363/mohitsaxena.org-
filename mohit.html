@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mohit Saxena Portal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #4285f4, #34a853);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 5vw;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      overflow: hidden;
+    }
+
+    #container {
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    #typing {
+      font-size: 28px;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid white;
+      margin-bottom: 20px;
+      min-height: 48px;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+      margin: 10px 0;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: all 0.4s ease;
+    }
+
+    .continue-btn {
+      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      color: white;
+      font-weight: bold;
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .continue-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .login-btn {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: white;
+      font-weight: bold;
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .login-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .mode-btn {
+      background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
+      color: white;
+      font-weight: bold;
+      border-radius: 50px;
+      animation: pulse-dark 2s infinite;
+    }
+
+    .mode-btn.toggle-anim {
+      animation: scaleShine 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0,114,255,0.5); }
+      70% { box-shadow: 0 0 0 15px rgba(0,114,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(0,114,255,0); }
+    }
+
+    @keyframes pulse-dark {
+      0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.2); }
+      70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+
+    @keyframes scaleShine {
+      0%   { transform: scale(1);     filter: brightness(1); }
+      50%  { transform: scale(1.2);   filter: brightness(1.5); }
+      100% { transform: scale(1);     filter: brightness(1); }
+    }
+
+    .hidden { display: none; }
+
+    .login-box {
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+
+    body.night {
+      background-color: #121212;
+      color: #f1f1f1;
+    }
+
+    body.night .login-box {
+      background: #1e1e1e;
+      color: white;
+    }
+
+    body.night input {
+      background-color: #333;
+      color: white;
+      border: 1px solid #666;
+    }
+
+    /* Floating Flower */
+    .floating-flower {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 32px;
+      animation: floatUpDown 3s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes floatUpDown {
+      0% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-15px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="continue-sound" src="https://www.soundjay.com/button/sounds/button-4.mp3" preload="auto"></audio>
+  <audio id="login-sound" src="https://www.soundjay.com/button/sounds/button-16.mp3" preload="auto"></audio>
+
+  <div id="container">
+    <div id="welcome-section">
+      <h1 id="typing"></h1>
+      <p>Please continue to login to access the site.</p>
+      <button class="continue-btn" onclick="handleContinue()">Continue to Login</button>
+    </div>
+
+    <div id="login-section" class="hidden">
+      <div class="login-box">
+        <span class="floating-flower">🌸❤️</span>
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" autocomplete="off" />
+        <input type="password" id="password" placeholder="Password" autocomplete="off" />
+        <button class="login-btn" onclick="loginWithSound()">Login</button>
+        <div class="error" id="error"></div>
+      </div>
+      <button class="mode-btn" onclick="toggleMode()" id="modeBtn">🌙 Enable Dark Mode</button>
+    </div>
+  </div>
+
+  <script>
+    // Typing animation
+    document.addEventListener("DOMContentLoaded", () => {
+      const typing = document.getElementById("typing");
+      const text = "Welcome to Mohit Saxena's Portal";
+      let i = 0;
+      function typeLetter() {
+        if (i < text.length) {
+          typing.textContent += text.charAt(i);
+          i++;
+          setTimeout(typeLetter, 90);
+        }
+      }
+      typeLetter();
+    });
+
+    // Preload voices
+    let selectedVoice = null;
+    const synth = window.speechSynthesis;
+
+    function loadVoiceAndSpeak(message) {
+      function setVoiceAndSpeak() {
+        const voices = synth.getVoices();
+        if (!voices.length) return;
+
+        selectedVoice = voices.find(v =>
+          v.name.toLowerCase().includes("google") &&
+          v.name.toLowerCase().includes("female")
+        ) || voices.find(v => v.name.toLowerCase().includes("female")) || voices[0];
+
+        const utter = new SpeechSynthesisUtterance(message);
+        utter.voice = selectedVoice;
+        utter.pitch = 1;
+        utter.rate = 1;
+
+        synth.cancel(); // Cancel any pending
+        synth.speak(utter);
+      }
+
+      if (!synth.getVoices().length) {
+        synth.onvoiceschanged = setVoiceAndSpeak;
+      } else {
+        setVoiceAndSpeak();
+      }
+    }
+
+    function handleContinue() {
+      document.getElementById("continue-sound").play().catch(() => {});
+      document.getElementById("welcome-section").classList.add("hidden");
+      document.getElementById("login-section").classList.remove("hidden");
+
+      loadVoiceAndSpeak("Welcome to Mohit Saxena’s Portal");
+    }
+
+    function loginWithSound() {
+      document.getElementById("login-sound").play().catch(() => {});
+      setTimeout(login, 300);
+    }
+
+    function login() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      if (user === "Mohit" && pass === "1234@63") {
+        window.open("https://sites.google.com/view/mohitkumar6355?usp=sharing", "_blank");
+      } else {
+        error.textContent = "❌ Invalid Username or Password";
+      }
+    }
+
+    function toggleMode() {
+      const btn = document.getElementById("modeBtn");
+      const isNight = document.body.classList.toggle("night");
+      btn.textContent = isNight ? "☀️ Enable Light Mode" : "🌙 Enable Dark Mode";
+      btn.classList.add("toggle-anim");
+      setTimeout(() => btn.classList.remove("toggle-anim"), 500);
+    }
+  </script>
+</body>
+</html>
